@@ -56,8 +56,8 @@ export default function Navbar() {
   const isMobile = useIsMobile()
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-2 py-4 md:px-4">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 shadow-lg">
+      <div className="mx-auto flex max-w-10/12 items-center justify-between px-2 py-4 md:px-4">
 
         {/* Logo / Brand */}
         <Link href="/" className="text-lg font-semibold">
@@ -67,14 +67,15 @@ export default function Navbar() {
         {/* Navigation menu */}
         <NavigationMenu viewport={isMobile}>
           <NavigationMenuList className="flex-wrap">
+            {/* Riset */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Riset</NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuTrigger className="hover:bg-white/50">Riset</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
                 <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
                   <li className="row-span-3">
                     <NavigationMenuLink asChild>
                       <Link
-                        className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-4 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md md:p-6"
+                        className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-4 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md md:p-6 hover:bg-white/50"
                         href="/"
                       >
                         <div className="mb-2 text-lg font-medium sm:mt-4">
@@ -86,27 +87,30 @@ export default function Navbar() {
                       </Link>
                     </NavigationMenuLink>
                   </li>
-                  <ListItem href="#" title="Introduction">
+                  <ListItem href="#" title="Introduction" className="hover:bg-white/50 transition rounded">
                     Re-usable components built using Radix UI and Tailwind CSS.
                   </ListItem>
-                  <ListItem href="#" title="Installation">
+                  <ListItem href="#" title="Installation" className="hover:bg-white/50 transition rounded">
                     How to install dependencies and structure your app.
                   </ListItem>
-                  <ListItem href="#" title="Typography">
+                  <ListItem href="#" title="Typography" className="hover:bg-white/50 transition rounded">
                     Styles for headings, paragraphs, lists...etc
                   </ListItem>
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+            
+            {/* Inovasi */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger>Inovasi</NavigationMenuTrigger>
-              <NavigationMenuContent>
-                <ul className="grid gap-2 sm:w-[400px] md:w-[500px] md:grid-cols-2 lg:w-[600px]">
+              <NavigationMenuTrigger className="hover:bg-white/50">Inovasi</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
+                <ul className="grid sm:w-[300px] md:w-[400px] md:grid-cols-2 lg:w-[500px]">
                   {components.map((component) => (
                     <ListItem
                       key={component.title}
                       title={component.title}
                       href={component.href}
+                      className="hover:bg-white/50 transition rounded"
                     >
                       {component.description}
                     </ListItem>
@@ -114,14 +118,18 @@ export default function Navbar() {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+
+            {/* About */}
             <NavigationMenuItem>
               <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
-                <Link href="#">Tentang Kami</Link>
+                <Link href="#" className="hover:bg-white/50">Tentang Kami</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
+
+            {/* Produk */}
             <NavigationMenuItem className="hidden md:block">
-              <NavigationMenuTrigger>Produk</NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuTrigger className="hover:bg-white/50">Produk</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
                 <ul className="grid w-[300px] gap-4">
                   <li>
                     <NavigationMenuLink asChild>
@@ -152,16 +160,18 @@ export default function Navbar() {
                 </ul>
               </NavigationMenuContent>
             </NavigationMenuItem>
+
+            {/* Profile */}
             <NavigationMenuItem className="hidden md:block">
-              <NavigationMenuTrigger>Profil</NavigationMenuTrigger>
-              <NavigationMenuContent>
+              <NavigationMenuTrigger className="hover:bg-white/50">Profil</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
                 <ul className="grid w-[200px] gap-4">
                   <li>
                     <NavigationMenuLink asChild>
-                      <Link href="#">Saya</Link>
+                      <Link href="#" className="hover:bg-white/50 font-medium">Saya</Link>
                     </NavigationMenuLink>
                     <NavigationMenuLink asChild>
-                      <Link href="#">Keluar</Link>
+                      <Link href="#" className="hover:bg-white/50 font-medium">Keluar</Link>
                     </NavigationMenuLink>
                   </li>
                 </ul>

@@ -19,7 +19,7 @@ export default function Hero() {
       {/* Content */}
       <div className="relative z-10 text-center text-orange-600 px-6">
         <h1 className="text-4xl md:text-6xl font-bold mb-4 drop-shadow-lg">
-          Selamat Datang
+          See what’s new in Inovation Marketplace
         </h1>
         <p className="text-lg md:text-xl opacity-90 max-w-2xl mx-auto">
           Temukan berbagai informasi dan katalog terbaru hanya di Inoshop.
