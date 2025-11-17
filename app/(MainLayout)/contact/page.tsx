@@ -1,97 +1,229 @@
 "use client";
 
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useForm } from "react-hook-form";
+import * as z from "zod";
+
 import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-} from "@/components/ui/card";
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
-import { Button } from "@/components/ui/button";
-import { Label } from "@/components/ui/label";
+import Image from "next/image";
+
+// ✅ Zod Schema
+const contactSchema = z.object({
+  fullName: z.string().min(2, "Full name is required"),
+  company: z.string().optional(),
+  email: z.string().email("Invalid email address"),
+  phone: z.string().min(5, "Phone number is required"),
+  subject: z.string().min(2, "Subject is required"),
+  message: z.string().min(10, "Message must be at least 10 characters"),
+});
+
+type ContactSchema = z.infer<typeof contactSchema>;
 
 export default function ContactPage() {
+  const form = useForm<ContactSchema>({
+    resolver: zodResolver(contactSchema),
+    defaultValues: {
+      fullName: "",
+      company: "",
+      email: "",
+      phone: "",
+      subject: "",
+      message: "",
+    },
+  });
+
+  const onSubmit = (values: ContactSchema) => {
+    console.log("Form submitted:", values);
+  };
+
   return (
-    <div className="min-h-screen bg-gray-50 pt-28 pb-20">
-      <div className="max-w-6xl mx-auto px-6">
-        {/* HEADER */}
-        <div className="text-center mb-16">
-          <h1 className="text-4xl md:text-5xl font-bold text-gray-900">
-            Contact <span className="text-orange-500">INOShop Platform</span>
-          </h1>
-          <p className="text-gray-700 mt-3 text-lg">
-            Fill out the form below and our team will get back to you shortly.
+    <main>
+      {/* Cover */}
+      <section className="relative w-full h-[300px] sm:h-[400px] overflow-hidden shadow-2xl border-b-gray-600">
+        <Image
+          src="/images/Acer1.jpg"
+          alt="Innovation Cover"
+          fill
+          className="object-cover brightness-75"
+        />
+        <div className="absolute inset-0 flex flex-col items-center justify-center text-center text-white px-4">
+          <h1 className="text-4xl sm:text-5xl font-bold mb-3 drop-shadow-md">Hubungi Kami</h1>
+          <p className="text-lg sm:text-xl max-w-2xl drop-shadow-sm">
+            Silahkan berikan pertanyaan kepada BRIDA Jawa Timur.
           </p>
         </div>
+      </section>
 
-        {/* FORM SECTION */}
-        <section className="py-12">
-          <div className="grid md:grid-cols-2 gap-12 items-start">
-            {/* FORM LEFT */}
-            <div>
-              <Card className="shadow-xl border border-gray-100 rounded-xl">
-                <CardHeader className="pb-0">
-                  <CardTitle className="text-2xl font-semibold">
-                    Send Us a Message
-                  </CardTitle>
-                  <p className="text-muted-foreground text-sm mt-1">
-                    Please provide your details below.
-                  </p>
-                </CardHeader>
+      {/* Form */}
+      <section className="flex justify-center items-center py-20">
+        <div className="w-11/12">
+          <div>
+            <h1 className="text-3xl font-bold">Kami siap Membantu Anda</h1>
+            <p className="text-gray-600 mt-2">
+              Silahkan isi formulir di bawah ini dan tim kami akan menghubungi Anda sesegera mungkin.
+            </p>
+          </div>
 
-                <CardContent className="space-y-6 mt-6">
+          <Form {...form}>
+            <form
+              onSubmit={form.handleSubmit(onSubmit)}
+              className="space-y-8 mt-4"
+            >
+
+              {/* 2 COLUMN FLEX */}
+              <div className="flex flex-col md:flex-row gap-6 w-full">
+
+                {/* LEFT COLUMN */}
+                <div className="flex-1 space-y-6">
+                  
                   {/* Full Name */}
-                  <div className="space-y-2">
-                    <Label className="font-medium">Full Name *</Label>
-                    <Input placeholder="John Doe" className="h-12 text-base rounded-xl" />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="fullName"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Full Name *</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 rounded-xl text-base"
+                            placeholder="John Doe"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   {/* Company */}
-                  <div className="space-y-2">
-                    <Label className="font-medium">Company / Organisation</Label>
-                    <Input placeholder="Enter your organisation name" className="h-12 text-base rounded-xl" />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="company"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Company / Organisation</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 rounded-xl text-base"
+                            placeholder="Your organisation"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
+
+                </div>
+
+                {/* RIGHT COLUMN */}
+                <div className="flex-1 space-y-6">
 
                   {/* Email */}
-                  <div className="space-y-2">
-                    <Label className="font-medium">Email Address *</Label>
-                    <Input type="email" placeholder="example@mail.com" className="h-12 text-base rounded-xl" />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="email"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Email Address *</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 rounded-xl text-base"
+                            placeholder="example@mail.com"
+                            type="email"
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
                   {/* Phone */}
-                  <div className="space-y-2">
-                    <Label className="font-medium">Phone Number *</Label>
-                    <Input type="text" placeholder="+62..." className="h-12 text-base rounded-xl" />
-                  </div>
+                  <FormField
+                    control={form.control}
+                    name="phone"
+                    render={({ field }) => (
+                      <FormItem>
+                        <FormLabel>Phone Number *</FormLabel>
+                        <FormControl>
+                          <Input
+                            className="h-12 rounded-xl text-base"
+                            placeholder="+62..."
+                            {...field}
+                          />
+                        </FormControl>
+                        <FormMessage />
+                      </FormItem>
+                    )}
+                  />
 
-                  {/* Message */}
-                  <div className="space-y-2">
-                    <Label className="font-medium">Your Message *</Label>
-                    <Textarea placeholder="Tell us how we can help you..." className="min-h-40 text-base rounded-xl" />
-                  </div>
+                </div>
 
-                  {/* Submit Button */}
-                  <div className="pt-4">
-                    <Button className="w-full h-12 text-lg font-medium rounded-xl hover:opacity-90 transition">
-                      Submit Enquiry
-                    </Button>
-                  </div>
-                </CardContent>
-              </Card>
-            </div>
+              </div>
 
-            {/* IMAGE RIGHT */}
-            <div className="hidden md:block">
-              <img
-                src="/images/contact-image.jpg"
-                alt="Contact INOShop"
-                className="rounded-xl shadow-md object-cover w-full h-[500px]"
+              <FormField
+                control={form.control}
+                name="subject"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Subject</FormLabel>
+                    <FormControl>
+                      <Input
+                        className="h-12 rounded-xl text-base"
+                        placeholder="Subject of your enquiry"
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
               />
-            </div>
-          </div>
-        </section>
-      </div>
-    </div>
+
+              {/* FULL WIDTH MESSAGE */}
+              <FormField
+                control={form.control}
+                name="message"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Your Message *</FormLabel>
+                    <FormControl>
+                      <Textarea
+                        className="min-h-40 rounded-xl text-base"
+                        placeholder="Tell us how we can help you..."
+                        {...field}
+                      />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* FULL WIDTH BUTTON */}
+              <Button
+                type="submit"
+                className="w-full h-12 text-lg font-medium rounded-xl"
+              >
+                Submit Enquiry
+              </Button>
+
+            </form>
+          </Form>
+
+        </div>
+      </section>
+
+    </main>
   );
 }

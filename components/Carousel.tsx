@@ -111,7 +111,7 @@ export function CarouselComponent() {
             {
               title: "Lihat",
               desc: "Inovasi Terbaru",
-              link: "/inovation",
+              link: "/innovation",
             },
             {
               title: "Ikuti",

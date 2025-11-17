@@ -2,9 +2,11 @@
 
 import Link from "next/link"
 import * as React from "react"
-import { motion } from "framer-motion"
-import { Lightbulb, FlaskConical, BookOpen, Box, CircleUser, Megaphone, CalendarDays } from "lucide-react"
+import { useState } from "react"
 
+import { logoutAction } from "@/app/authentication/logout/action"
+import { LoginDialog } from "@/components/auth/LoginDialog"
+import { RegisterDialog } from "@/components/auth/RegisterDialog"
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -12,237 +14,218 @@ import {
   NavigationMenuLink,
   NavigationMenuList,
   NavigationMenuTrigger,
+  navigationMenuTriggerStyle,
 } from "@/components/ui/navigation-menu"
-
 import { useIsMobile } from "@/hooks/use-mobile"
+import { Button } from "./ui/button"
+
+const components: { title: string; href: string; description: string }[] = [
+  {
+    title: "News and Media",
+    href: "/news",
+    description:
+      "Berita terbaru dan informasi media terkini seputar inovasi dan teknologi.",
+  },
+  {
+    title: "Calendar of Events",
+    href: "/events",
+    description:
+      "Daftar acara mendatang, seminar, dan workshop terkait inovasi.",
+  },
+  // {
+  //   title: "Media Gallery",
+  //   href: "/media",
+  //   description: "Temukan berbagai galeri media inovasi kami yang memiliki banyak manfaat.",
+  // }
+]
 
 export default function Navbar() {
+  const [openLogin, setOpenLogin] = useState(false);
+  const [openRegister, setOpenRegister] = useState(false);
+
+  const handleLogout = async () => {
+    await logoutAction();
+    window.location.href = "/";
+  };
+
   const isMobile = useIsMobile()
 
   return (
-    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 backdrop-blur-md shadow-sm">
-      <div className="mx-auto flex max-w-7xl items-center justify-between px-4 py-3">
+    <nav className="fixed top-0 left-0 right-0 z-50 bg-background/80 shadow-lg">
+      <div className="mx-auto flex max-w-11/12 items-center justify-between px-2 py-4 md:px-4">
 
-        {/* Logo */}
-        <Link href="/" className="text-lg font-semibold tracking-tight">
+        {/* Logo / Brand */}
+        <Link href="/" className="text-lg font-semibold">
           Inoshop
         </Link>
 
-        {/* Navigation */}
+        {/* Navigation menu */}
         <NavigationMenu viewport={isMobile}>
           <NavigationMenuList className="flex-wrap">
-
-            {/* ===========================
-                Innovation Marketplace
-            ============================ */}
+            {/* Inovasi */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="flex items-center gap-2">
-                <Lightbulb className="w-4 h-4 text-amber-500" />
-                Innovation Marketplace
-              </NavigationMenuTrigger>
-
-              <MenuContent>
-                <MenuList>
-                  <ListItem
-                    href="#"
-                    title="Approved Innovations"
-                  >
-                    <span className="block text-xs text-muted-foreground">
-                      Katalog inovasi terbaru yang sudah diverifikasi dan dikurasi 
-                      dari berbagai bidang teknologi dan riset terapan.
-                    </span>
+              <NavigationMenuTrigger className="hover:bg-white/50">Innovation Marketplace</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
+                <ul className="grid gap-2 md:w-[400px] lg:w-[500px] lg:grid-cols-[.75fr_1fr]">
+                  <li className="row-span-5">
+                    <NavigationMenuLink asChild>
+                      <Link
+                        className="from-muted/50 to-muted flex h-full w-full flex-col justify-end rounded-md bg-linear-to-b p-4 no-underline outline-hidden transition-all duration-200 select-none focus:shadow-md md:p-6 hover:bg-white/50"
+                        href="/innovation"
+                      >
+                        <div className="mb-2 text-2xl font-medium sm:mt-4">
+                          All Innovation
+                        </div>
+                        <p className="text-muted-foreground leading-tight">
+                          Temukan semua Inovasi BRIDA Jawa Timur dari berbagai kategori.
+                        </p>
+                      </Link>
+                    </NavigationMenuLink>
+                  </li>
+                  <ListItem href="#" title="Technology" className="hover:bg-white/50 transition rounded">
+                    Inovasi dengan kategori Teknologi.
                   </ListItem>
-
-                  <ListItem href="#" title="Innovation Matching">
-                      Sistem pencocokan inovasi yang menghubungkan industri dengan solusi riset dan teknologi.
+                  <ListItem href="#" title="Agriculture" className="hover:bg-white/50 transition rounded">
+                    Inovasi dengan kategori Agrikultur.
                   </ListItem>
-
-                  <ListItem href="#" title="Innovation Funding">
-                    Informasi pendanaan, hibah, dan program akselerasi untuk pengembangan inovasi.
+                  <ListItem href="#" title="Energy" className="hover:bg-white/50 transition rounded">
+                    Inovasi dengan kategori Energi.
                   </ListItem>
-                </MenuList>
-              </MenuContent>
+                  <ListItem href="#" title="Health" className="hover:bg-white/50 transition rounded">
+                    Inovasi dengan kategori Kesehatan.
+                  </ListItem>
+                  <ListItem href="#" title="Transportation" className="hover:bg-white/50 transition rounded">
+                    Inovasi dengan kategori Transportation.
+                  </ListItem>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
+            
+            {/* Berita dan Acara */}
+            <NavigationMenuItem>
+              <NavigationMenuTrigger className="hover:bg-white/50">News & Events</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
+                <ul className="grid sm:w-[300px] gap-2 md:w-[400px] lg:w-[500px]">
+                  {components.map((component) => (
+                    <ListItem
+                      key={component.title}
+                      title={component.title}
+                      href={component.href}
+                      className="hover:bg-white/50 transition rounded"
+                    >
+                      {component.description}
+                    </ListItem>
+                  ))}
+                </ul>
+              </NavigationMenuContent>
             </NavigationMenuItem>
 
-            {/* ===========================
-                Research Partner
-            ============================ */}
+            {/* <NavigationMenuItem className="hidden md:block">
+              <NavigationMenuTrigger className="hover:bg-white/50">Events</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
+                <ul className="grid w-[300px] gap-4">
+                  <li>
+                    <NavigationMenuLink asChild>
+                      <Link href="#">
+                        <div className="font-medium">Components</div>
+                        <div className="text-muted-foreground">
+                          Browse all components in the library.
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link href="#">
+                        <div className="font-medium">Documentation</div>
+                        <div className="text-muted-foreground">
+                          Learn how to use the library.
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                    <NavigationMenuLink asChild>
+                      <Link href="#">
+                        <div className="font-medium">Blog</div>
+                        <div className="text-muted-foreground">
+                          Read our latest blog posts.
+                        </div>
+                      </Link>
+                    </NavigationMenuLink>
+                  </li>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem> */}
+
+            
+            {/* About */}
             <NavigationMenuItem>
-              <NavigationMenuTrigger className="flex items-center gap-2">
-                <FlaskConical className="w-4 h-4 text-sky-500" />
-                Research Partner
-              </NavigationMenuTrigger>
-
-              <MenuContent>
-                <MenuList>
-                  <ListItem href="#" title="Technology Needs">
-                    Daftar kebutuhan teknologi dari industri, pemerintah, atau organisasi yang mencari solusi spesifik.
-                  </ListItem>
-
-                  <ListItem href="#" title="Technology Offers">
-                    Katalog penawaran teknologi dari tim riset, laboratorium, startup, atau inventor, termasuk prototipe, metode, AI model, dan solusi.
-                  </ListItem>
-
-                  <ListItem
-                    href="#"
-                    title="Innovator & Expert Directory"
-                  >
-                    Basis data ahli, peneliti, dan inovator yang siap terlibat dalam kolaborasi penelitian, dan konsultasi teknologi.
-                  </ListItem>
-                </MenuList>
-              </MenuContent>
-            </NavigationMenuItem>
-
-            {/* ===========================
-                NEWS & EVENTS
-            ============================ */}
-            <NavigationMenuItem>
-              <NavigationMenuTrigger className="flex items-center gap-2">
-                <CalendarDays className="w-4 h-4 text-gray-600" />
-                News & Events
-              </NavigationMenuTrigger>
-
-              <MenuContent>
-                <MenuList>
-                  <ListItem href="#" title="News & Media">
-                    Berita dan publikasi terbaru seputar kegiatan kami.
-                  </ListItem>
-
-                  <ListItem href="#" title="Events">
-                    Informasi mengenai acara, workshop, dan agenda kegiatan yang akan datang.
-                  </ListItem>
-
-                  <ListItem href="#" title="Gallery">
-                    Koleksi foto dan dokumentasi kegiatan.
-                  </ListItem>
-                </MenuList>
-              </MenuContent>
-            </NavigationMenuItem>
-
-            {/* ===========================
-                Product Development
-            ============================ */}
-            <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/contact"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors hover:bg-gray-100/70"
-                >
-                  <Megaphone className="w-4 h-4 text-orange-500" />
-                  Contact
-                </Link>
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                <Link href="/about" className="hover:bg-white/50">About Us</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
-            {/* ===========================
-                About Us
-            ============================ */}
+            {/* Contact */}
             <NavigationMenuItem>
-              <NavigationMenuLink asChild>
-                <Link
-                  href="/about"
-                  className="flex items-center gap-2 px-3 py-2 rounded-md transition-colors hover:bg-gray-100/70"
-                >
-                  <CircleUser className="w-4 h-4 text-emerald-500" />
-                  About Us
-                </Link>
+              <NavigationMenuLink asChild className={navigationMenuTriggerStyle()}>
+                <Link href="/contact" className="hover:bg-white/50">Contact Us</Link>
               </NavigationMenuLink>
             </NavigationMenuItem>
 
+            {/* Profile */}
+            <NavigationMenuItem className="hidden md:block">
+              <NavigationMenuTrigger className="hover:bg-white/50">Profile</NavigationMenuTrigger>
+              <NavigationMenuContent className="border border-none backdrop-blur-md">
+                <ul className="grid w-fit gap-4">
+                  <li>
+                    <Button
+                      variant="ghost"
+                      className="w-full hover:bg-white/50 font-medium justify-start"
+                      onClick={() => setOpenLogin(true)}
+                    >
+                      Masuk
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full hover:bg-white/50 font-medium justify-start"
+                      onClick={() => setOpenRegister(true)}
+                    >
+                      Register
+                    </Button>
+                    <Button
+                      variant="ghost"
+                      className="w-full hover:bg-white/50 font-medium justify-start"
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </Button>
+                  </li>
+                </ul>
+              </NavigationMenuContent>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
+
+        <LoginDialog open={openLogin} onOpenChange={setOpenLogin}/>
+        <RegisterDialog open={openRegister} onOpenChange={setOpenRegister}/>
       </div>
     </nav>
   )
 }
-/* ===================================================
-   Minimal Premium: NavigationMenuContent
-=================================================== */
-function MenuContent({ children }: { children: React.ReactNode }) {
-  return (
-    <NavigationMenuContent
-      className="
-        rounded-xl 
-        p-5
-        bg-white/80
-        backdrop-blur-lg
-        border border-gray-200/50
-        shadow-lg
-      "
-      
-    >
-      {children}
-    </NavigationMenuContent>
-  );
-}
 
-/* ===================================================
-   Minimal Premium: Menu List Wrapper
-=================================================== */
-function MenuList({ children }: { children: React.ReactNode }) {
-  return (
-    <motion.ul
-      initial={{ opacity: 0, y: 6 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.22, ease: 'easeOut' }}
-      className="grid gap-4 w-[320px] md:w-[380px]"
-    >
-      {children}
-    </motion.ul>
-  );
-}
-
-/* ===================================================
-   Minimal Premium: ListItem Component
-=================================================== */
 function ListItem({
   title,
   children,
   href,
   ...props
-}: React.ComponentPropsWithoutRef<'li'> & { href: string }) {
+}: React.ComponentPropsWithoutRef<"li"> & { href: string }) {
   return (
     <li {...props}>
       <NavigationMenuLink asChild>
-        <Link
-          href={href}
-          className="
-            group 
-            block 
-            rounded-lg 
-            p-3 
-            transition-all
-            hover:bg-gray-100/70
-          "
-        >
-          {/* Title */}
-          <div
-            className="
-              text-sm 
-              font-medium
-              group-hover:font-semibold
-              transition-all
-            "
-          >
-            {title}
-          </div>
-
-          {/* Description */}
-          <p
-            className="
-              text-xs 
-              text-gray-500
-              mt-0.5
-              leading-snug
-              group-hover:text-gray-700
-              transition-colors
-              line-clamp-2
-            "
-          >
+        <Link href={href}>
+          <div className="text-sm leading-none font-medium">{title}</div>
+          <p className="text-muted-foreground line-clamp-2 text-sm leading-snug">
             {children}
           </p>
         </Link>
       </NavigationMenuLink>
     </li>
-  );
+  )
 }

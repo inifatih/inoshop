@@ -10,8 +10,8 @@ export default function HomePage() {
     <main className="flex-1 min-h-screen">
       <CarouselComponent />
       <About />
-      <Hero />
       <Section1 />
+      <Hero />
     </main>
   );
 }

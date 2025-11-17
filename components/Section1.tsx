@@ -40,7 +40,7 @@ export default function Section1() {
       <div className="max-w-10/12 mx-auto">
         {/* Heading */}
         <h2 className="text-4xl font-bold tracking-tight text-[#1A1333] mb-12">
-          Our Projects
+          News & Events
         </h2>
 
         {/* Grid layout */}
