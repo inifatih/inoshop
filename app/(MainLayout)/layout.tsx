@@ -15,10 +15,11 @@ export const metadata: Metadata = {
 export default async function RootLayout({
   children,
 }: Readonly<{ children: React.ReactNode }>) {
+
   return (
     <html lang="en">
       <body>
-        <Navbar />
+        <Navbar/>
         {/* 
           Di sini children akan digantikan oleh layout user atau admin,
           tergantung route group (misalnya (user) atau (admin)).

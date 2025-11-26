@@ -5,6 +5,7 @@ import { CarouselComponent } from "@/components/Carousel";
 import Hero from "@/components/Hero";
 import Section1 from "@/components/Section1";
 
+// LANDING PAGE FOR ALL ROLES
 export default function HomePage() {
   return (
     <main className="flex-1 min-h-screen">

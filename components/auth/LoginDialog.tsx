@@ -1,35 +1,175 @@
 "use client";
 
-import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from "@/components/ui/dialog";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 
-export function LoginDialog({ open, onOpenChange }: { open: boolean; onOpenChange: (v: boolean) => void }) {
+import {
+  Dialog,
+  DialogContent,
+  DialogDescription,
+  DialogHeader,
+  DialogTitle,
+} from "@/components/ui/dialog";
+
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "@/components/ui/form";
+
+import { actionSignIn } from "@/app/auth/login/action";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Loader2 } from "lucide-react";
+
+// =========================
+//  ZOD REGISTRATION SCHEMA
+// =========================
+const loginSchema = z
+  .object({
+    email: z.string().email("Email tidak valid"),
+    password: z.string().min(6, "Password minimal 6 karakter"),
+  })
+
+type LoginSchema = z.infer<typeof loginSchema>;
+
+export function LoginDialog({
+  open,
+  onOpenChange,
+}: {
+  open: boolean;
+  onOpenChange: (v: boolean) => void;
+}) {
+
+  const [serverError, setServerError] = useState("");
+  const [loading, setLoading] = useState(false);
+  const [loginMessage, setLoginMessage] = useState(""); // State untuk pesan sukses
+
+  // Form
+  const form = useForm<LoginSchema>({
+    resolver: zodResolver(loginSchema),
+    defaultValues: {
+      email: "",
+      password: "",
+    },
+  });
+
+  // Submit
+  const onSubmit = async (values: LoginSchema) => {
+    console.log("=== onSubmit dijalankan ===");
+    console.log("Values dari form:", values);
+
+    setLoading(true);
+    setServerError("");
+    setLoginMessage("");
+    console.log("State direset: loading=true, error cleared, message cleared");
+
+    const result = await actionSignIn({
+      email: values.email,
+      password: values.password,
+    });
+
+    console.log("Hasil dari actionSignIn:", result);
+
+    // safety check
+    if (!result || !result.success) {
+      console.log("Login gagal, result:", result);
+      setServerError(result?.message || "Login gagal");
+      setLoading(false);
+      console.log("State update: serverError set, loading=false");
+      return;
+    }
+
+    // success
+    console.log("Login berhasil:", result.message);
+    setLoginMessage(result.message || "Login berhasil");
+
+    form.reset();
+    console.log("Form di-reset");
+
+    setLoading(false);
+    console.log("Loading=false, selesai");
+  };
+
+
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="mmax-w-md bg-white shadow-2xl border-0 rounded-2xl">
+      <DialogContent className="max-w-md bg-white shadow-2xl border-0 rounded-2xl">
         <DialogHeader>
           <DialogTitle>Masuk</DialogTitle>
-          <DialogDescription>
-            Silakan login dengan email dan password Anda.
-          </DialogDescription>
+          <DialogDescription>Gunakan data yang valid untuk masuk.</DialogDescription>
         </DialogHeader>
 
-        <form className="space-y-4 mt-4">
-          <input
-            type="email"
-            placeholder="Email"
-            className="w-full border rounded p-2"
-          />
-          <input
-            type="password"
-            placeholder="Password"
-            className="w-full border rounded p-2"
-          />
-          <button type="submit" className="w-full bg-black text-white p-2 rounded">
-            Login
-          </button>
-        </form>
+        {/* Tambahkan tampilan pesan sukses */}
+        {loginMessage ? (
+          <div className="text-center p-4 text-green-800 rounded-lg">
+            <p className="font-medium">{loginMessage}!</p>
+            <Button onClick={() => onOpenChange(false)} className="mt-4 font-bold hover:bg-green-800 hover:text-white">Tutup</Button>
+          </div>
+        ) : (
+          <Form {...form}>
+            <form className="space-y-4 mt-4" onSubmit={form.handleSubmit(onSubmit)}>
+              
+              {/* ... (Field Email, Full Name, Password tetap sama) ... */}
+              {/* Email */}
+              <FormField
+                control={form.control}
+                name="email"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Email</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="email" placeholder="you@example.com" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Password */}
+              <FormField
+                control={form.control}
+                name="password"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Password</FormLabel>
+                    <FormControl>
+                      <Input {...field} type="password" placeholder="••••••••" />
+                    </FormControl>
+                    <FormMessage />
+                  </FormItem>
+                )}
+              />
+
+              {/* Server Error */}
+              {serverError && (
+                <p className="text-sm text-red-500 text-center font-medium">
+                  {serverError}
+                </p>
+              )}
+
+              <Button
+                type="submit"
+                className="w-full rounded-xl h-10 bg-amber-600 hover:bg-amber-200 hover:cursor-pointer"
+                disabled={loading}
+              >
+                {loading ? (
+                  <span className="flex items-center justify-center gap-2">
+                    <Loader2 className="animate-spin h-4 w-4" /> Mencoba masuk...
+                  </span>
+                ) : (
+                  "Login"
+                )}
+              </Button>
+            </form>
+          </Form>
+        )}
       </DialogContent>
     </Dialog>
-  )
+  );
 }
-
