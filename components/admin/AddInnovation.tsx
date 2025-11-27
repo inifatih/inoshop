@@ -1,71 +1,217 @@
 "use client";
-import React from "react";
-import { useForm } from "react-hook-form";
-import { Button } from "../ui/button";
-import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "../ui/form";
-import { Input } from "../ui/input";
 
-export default function AddInnovation() {
-  const form = useForm(
-    
-  )
+import { zodResolver } from "@hookform/resolvers/zod";
+import { useEffect, useState } from "react";
+import { useForm } from "react-hook-form";
+import { z } from "zod";
+
+import { createInnovation, getInovators } from "@/app/admin/innovation/action";
+import { Button } from "../ui/button";
+import { Card, CardContent, CardHeader, CardTitle } from "../ui/card";
+import {
+  Form,
+  FormControl,
+  FormField,
+  FormItem,
+  FormLabel,
+  FormMessage,
+} from "../ui/form";
+import { Input } from "../ui/input";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { Textarea } from "../ui/textarea";
+
+// ---------------------------
+// ZOD SCHEMA
+// ---------------------------
+const InnovationSchema = z.object({
+  nama_inovasi: z.string().min(1, "Nama inovasi wajib diisi"),
+  asal_inovasi: z.string(),
+  deskripsi_inovasi: z.string().min(1, "Asal inovasi wajib diisi"),
+  inovator: z.string().min(1, "Pilih inovator"),
+});
+
+type InnovationForm = z.infer<typeof InnovationSchema>;
+interface AddInnovationProps {
+  onSuccess?: () => void;
+}
+
+export default function AddInnovation({ onSuccess }: AddInnovationProps) {
+  const [status, setStatus] = useState<"success" | "error" | "">("");
+
+  // form handling
+  const form = useForm<InnovationForm>({
+    resolver: zodResolver(InnovationSchema),
+    defaultValues: {
+      nama_inovasi: "",
+      asal_inovasi: "",
+      deskripsi_inovasi: "",
+      inovator: "",
+    },
+  });
+
+  const [innovators, setInnovators] = useState<
+    {id: string; name:string }[]
+  >([]);
+
+  useEffect(() => {
+    async function loadData() {
+      const result = await getInovators();
+      setInnovators(result);
+    }
+    loadData();
+  }, []);
+
+  // submit handling
+  const onSubmit = async (values: InnovationForm) => {
+    try {
+      await createInnovation({
+        nama_inovasi: values.nama_inovasi,
+        asal_inovasi: values.asal_inovasi,
+        deskripsi_inovasi: values.deskripsi_inovasi,
+        id_inovator: values.inovator, // ambil ID dari dropdown
+      });
+      setStatus("success");
+      // Reset form setelah submit
+      form.reset();
+      onSuccess?.();
+    } catch (err) {
+      console.error("Gagal membuat inovasi:", err);
+      setStatus("error");
+    }
+  };
+
 
   return (
-    <div>
-      <h1 className="text-2xl font-bold mb-4">Add Event</h1>
-      <Form {...form}>
-        <FormField
-          control={form.control}
-          name="namaInovasi"
-          render={({ field }) => (
-              <FormItem>
-              <FormLabel>Nama Inovasi</FormLabel>
-              <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>Masukan nama inovasi yang dibuat</FormDescription>
-              <FormMessage />
-              </FormItem>
-          )}
-        />
+    <Card className="w-full border rounded-xl shadow-sm bg-white">
+      <CardHeader className="bg-orange-50 border-b">
+        <CardTitle className="text-xl font-semibold text-orange-600">
+          Tambahkan Inovasi
+        </CardTitle>
+      </CardHeader>
 
-        <FormField
-          control={form.control}
-          name="deskripsiInovasi"
-          render={({ field }) => (
-              <FormItem>
-              <FormLabel>Deskripsi Inovasi</FormLabel>
-              <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>Masukan deskripsi inovasi yang dibuat</FormDescription>
-              <FormMessage />
-              </FormItem>
-          )}
-        />
+      <CardContent className="mt-4">
+        <Form {...form}>
+          <form onSubmit={form.handleSubmit(onSubmit)}>
 
-        <FormField
-          control={form.control}
-          name="asalInovasi"
-          render={({ field }) => (
-              <FormItem>
-              <FormLabel>Asal Inovasi</FormLabel>
-              <FormControl>
-                  <Input placeholder="shadcn" {...field} />
-              </FormControl>
-              <FormDescription>Masukan asal inovasi yang dibuat</FormDescription>
-              <FormMessage />
-              </FormItem>
-          )}
-        />
+            {/* GRID 2 KOLOM */}
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
 
-        <div className="mt-4">
-          <Button type="submit">
-            Simpan
-          </Button>
-        </div>
-      </Form>
-      
-    </div>
-  )
+              {/* KOLOM KIRI */}
+              <div className="space-y-6">
+
+                {/* NAMA INOVASI */}
+                <FormField
+                  control={form.control}
+                  name="nama_inovasi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800">Nama Inovasi</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Masukkan nama inovasi"
+                          className="bg-gray-50 focus-visible:ring-orange-500"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* ASAL INOVASI */}
+                <FormField
+                  control={form.control}
+                  name="asal_inovasi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800">Asal Inovasi</FormLabel>
+                      <FormControl>
+                        <Input
+                          placeholder="Contoh: Kota Malang"
+                          className="bg-gray-50 focus-visible:ring-orange-500"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+                {/* DROPDOWN INOVATOR */}
+                <FormField
+                  control={form.control}
+                  name="inovator"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800">Inovator</FormLabel>
+                      <Select onValueChange={field.onChange} defaultValue={field.value}>
+                        <FormControl>
+                          <SelectTrigger className="bg-gray-50 focus-visible:ring-orange-500">
+                            <SelectValue placeholder="Pilih inovator" />
+                          </SelectTrigger>
+                        </FormControl>
+                        <SelectContent>
+                          {innovators.map((inv) => (
+                            <SelectItem key={inv.id} value={inv.id}>
+                              {inv.name}
+                            </SelectItem>
+                          ))}
+                        </SelectContent>
+                      </Select>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              </div>
+
+              {/* KOLOM KANAN */}
+              <div className="space-y-6">
+
+                {/* TEXTAREA DESKRIPSI */}
+                <FormField
+                  control={form.control}
+                  name="deskripsi_inovasi"
+                  render={({ field }) => (
+                    <FormItem>
+                      <FormLabel className="text-gray-800">Deskripsi Inovasi</FormLabel>
+                      <FormControl>
+                        <Textarea
+                          placeholder="Masukkan deskripsi inovasi secara lengkap"
+                          className="bg-gray-50 min-h-[200px] focus-visible:ring-orange-500"
+                          {...field}
+                        />
+                      </FormControl>
+                      <FormMessage />
+                    </FormItem>
+                  )}
+                />
+
+              </div>
+            </div>
+
+            {/* TOMBOL SUBMIT */}
+            <div className="flex justify-end mt-6">
+              <Button
+                type="submit"
+                className="bg-orange-500 hover:bg-orange-600 text-white px-6"
+              >
+                Simpan
+              </Button>
+              {/* Status message */}
+              <div className="pt-2">
+                {status === "success" && (
+                  <p className="text-green-600 font-medium">Inovasi berhasil disimpan!</p>
+                )}
+                {status === "error" && (
+                  <p className="text-red-600 font-medium">Gagal menyimpan inovasi!</p>
+                )}
+              </div>
+            </div>
+
+          </form>
+        </Form>
+      </CardContent>
+    </Card>
+  );
 }

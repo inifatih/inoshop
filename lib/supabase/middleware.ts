@@ -1,66 +1,80 @@
-import { createServerClient } from '@supabase/ssr'
-import { NextResponse, type NextRequest } from 'next/server'
+import { createServerClient } from "@supabase/ssr";
+import { NextResponse, type NextRequest } from "next/server";
 
 export async function updateSession(request: NextRequest) {
   let supabaseResponse = NextResponse.next({
     request,
-  })
+  });
 
   const supabase = createServerClient(
     process.env.NEXT_PUBLIC_SUPABASE_URL!,
-    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,   // gunakan anon key, bukan publishable
+    process.env.NEXT_PUBLIC_SUPABASE_PUBLISHABLE_KEY!,
     {
       cookies: {
         getAll() {
-          return request.cookies.getAll()
+          return request.cookies.getAll();
         },
         setAll(cookiesToSet) {
-          cookiesToSet.forEach(({ name, value }) => request.cookies.set(name, value))
-          supabaseResponse = NextResponse.next({ request })
-          cookiesToSet.forEach(({ name, value }) => supabaseResponse.cookies.set(name, value))
+          cookiesToSet.forEach(({ name, value }) =>
+            request.cookies.set(name, value)
+          );
+          supabaseResponse = NextResponse.next({ request });
+          cookiesToSet.forEach(({ name, value }) =>
+            supabaseResponse.cookies.set(name, value)
+          );
         },
       },
     }
-  )
+  );
 
   // ❗ Tetap wajib ada supaya session tidak error
-  const { data } = await supabase.auth.getClaims()
-  const session = data?.claims
+  const { data } = await supabase.auth.getClaims();
+  const session = data?.claims;
 
   // =====================================================
-  // 1. Jika path bukan /admin → siapa saja boleh akses
+  // 1. Jika path bukan /admin → allow
   // =====================================================
-  const isAdminPath = request.nextUrl.pathname.startsWith('/admin')
+  const isAdminPath = request.nextUrl.pathname.startsWith("/admin");
   if (!isAdminPath) {
-    return supabaseResponse
+    return supabaseResponse;
   }
 
   // =====================================================
-  // 2. Jika path /admin tapi tidak ada session → redirect login
+  // 2. Kalau path admin tapi user tidak login
   // =====================================================
   if (!session) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/login'
-    return NextResponse.redirect(url)
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
   // =====================================================
-  // 3. Ambil role dari profiles (butuh RLS benar)
+  // 3. Ambil role admin dari profiles
   // =====================================================
-  const { data: profile } = await supabase
-    .from('profiles')
-    .select('is_admin')
-    .eq('id', session.sub)
-    .single()
+  const { data: profile, error: profileError } = await supabase
+    .from("profiles")
+    .select("is_admin")
+    .eq("id", session.sub)
+    .single();
 
-  if (!profile?.is_admin) {
-    const url = request.nextUrl.clone()
-    url.pathname = '/'
-    return NextResponse.redirect(url)
+  // Jika gagal ambil profile / tidak ada profile → tidak boleh masuk
+  if (profileError || !profile) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/";
+    return NextResponse.redirect(url);
   }
 
   // =====================================================
-  // 4. Jika admin → lanjutkan ke /admin
+  // 4. Jika BUKAN admin → redirect ke forbidden
   // =====================================================
-  return supabaseResponse
+  if (!profile.is_admin) {
+    const url = request.nextUrl.clone();
+    url.pathname = "/"; // atau "/"
+    return NextResponse.redirect(url);
+  }
+
+  // =====================================================
+  // 5. Jika admin → lanjutkan request ke /admin/*
+  // =====================================================
+  return supabaseResponse;
 }

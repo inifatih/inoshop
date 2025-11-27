@@ -61,41 +61,29 @@ export function LoginDialog({
 
   // Submit
   const onSubmit = async (values: LoginSchema) => {
-    console.log("=== onSubmit dijalankan ===");
-    console.log("Values dari form:", values);
 
     setLoading(true);
     setServerError("");
     setLoginMessage("");
-    console.log("State direset: loading=true, error cleared, message cleared");
 
     const result = await actionSignIn({
       email: values.email,
       password: values.password,
     });
 
-    console.log("Hasil dari actionSignIn:", result);
-
     // safety check
     if (!result || !result.success) {
-      console.log("Login gagal, result:", result);
       setServerError(result?.message || "Login gagal");
       setLoading(false);
-      console.log("State update: serverError set, loading=false");
       return;
     }
-
+    
     // success
-    console.log("Login berhasil:", result.message);
     setLoginMessage(result.message || "Login berhasil");
-
     form.reset();
-    console.log("Form di-reset");
-
-    setLoading(false);
-    console.log("Loading=false, selesai");
+    setLoading(false);    
+    window.location.reload()
   };
-
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>

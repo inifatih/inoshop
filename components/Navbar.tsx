@@ -35,6 +35,7 @@ import {
   AccordionTrigger,
 } from "@/components/ui/accordion";
 
+import { actionSignOut } from "@/app/auth/logout/action";
 import { createClient } from "@/lib/supabase/client";
 import { User } from "@supabase/supabase-js";
 import { Menu } from "lucide-react";
@@ -60,11 +61,18 @@ export default function Navbar() {
   }, []);
 
 
-  const handleLogout = async () => {
-    const supabase = createClient();
-    await supabase.auth.signOut();
+  const handleSignOut = async () => {
+    const result = await actionSignOut();
+
+    if (result.error) {
+      console.error("Logout gagal:", result.error);
+      return;
+    }
+
+    // Logout berhasil → refresh halaman
     window.location.reload();
   };
+
 
   // ===== DETECT SCROLL =====
   useEffect(() => {
@@ -229,10 +237,10 @@ export default function Navbar() {
                         </>
                       ) : (
                         <>
-                          <Link href="/Me">
+                          <Link href="">
                             <Button variant="ghost" className="w-full justify-start text-left">Saya</Button>
                           </Link>
-                          <Button variant="ghost" className="w-full justify-start text-left" onClick={handleLogout}>
+                          <Button variant="ghost" className="w-full justify-start text-left" onClick={handleSignOut}>
                             Logout
                           </Button>
                         </>
