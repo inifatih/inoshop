@@ -51,13 +51,16 @@ export default function AboutPage() {
   useEffect(() => {
     const section = searchParams.get("section") as SectionKey | null;
     if (section && keys.includes(section)) {
-      setFade(false);
       setTimeout(() => {
-        setActive(section);
-        setTimeout(() => setFade(true), 120);
-      }, 150);
+        setFade(false);
+        setTimeout(() => {
+          setActive(section);
+          setTimeout(() => setFade(true), 120);
+        }, 0);
+      }, 0);
     }
   }, [searchParams]);
+
 
   useEffect(() => {
     const index = keys.indexOf(active);
