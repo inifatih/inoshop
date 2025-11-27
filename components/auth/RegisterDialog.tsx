@@ -22,7 +22,6 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 
-import { actionSignUp } from "@/app/auth/register/action";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Loader2 } from "lucide-react";
@@ -71,29 +70,37 @@ export function RegisterDialog({
     setServerError("");
     setRegistrationMessage("");
 
-    const result = await actionSignUp({
-      email: values.email,
-      password: values.password,
-      nama: values.nama,
-      kontak: values.kontak,
-      deskripsi: values.deskripsi,
-      lokasi: values.lokasi,
-      is_admin: false,
-    });
+    try {
+      const res = await fetch("/auth/validasi-inovator/action", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(values),
+      });
 
-    if (!result.success) {
-      // Jika gagal, tampilkan pesan error dari server
-      setServerError(result.message || "Pendaftaran gagal");
+      if (!res.ok) {
+        try {
+          const errorData = await res.json();
+          setServerError(errorData.message || `Error status: ${res.status}`);
+        } catch (e) {
+          // If it's not JSON (e.g., a simple 404 HTML page)
+          setServerError(e instanceof Error ? e.message: `${res.status}`); 
+        }
+        return;
+      }
+
+      const data = await res.json();
+      if (!data.success) {
+        setServerError(data.message || "Pendaftaran gagal");
+        return;
+      }
+
+      setRegistrationMessage(data.message);
+      form.reset();
+    } catch (err: unknown) {
+      setServerError(err instanceof Error ? err.message : "Terjadi kesalahan server");
+    } finally {
       setLoading(false);
-      return;
     }
-
-    // Jika berhasil
-    setRegistrationMessage(result.message); // Tampilkan pesan sukses
-    // opsional: tutup dialog setelah beberapa detik atau tunggu user klik OK
-    // onOpenChange(false);
-    form.reset();
-    setLoading(false);
   };
 
   return (
@@ -168,7 +175,7 @@ export function RegisterDialog({
                   <FormItem>
                     <FormLabel>Kontak</FormLabel>
                     <FormControl>
-                      <Input {...field} type="number" placeholder="08xxxxxxxxxx" />
+                      <Input {...field} type="text" placeholder="08xxxxxxxxxx" />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

@@ -6,7 +6,7 @@ export default function Hero() {
     <section className="relative w-full h-[70vh] flex items-center justify-center overflow-hidden">
       {/* Background Image (opsional, ganti sesuai kebutuhan) */}
       <Image
-        src="/hero-bg.jpg" // ganti dengan file hero kamu
+        src="/images/Event1.jpg"
         alt="Hero background"
         fill
         className="object-cover object-center"
